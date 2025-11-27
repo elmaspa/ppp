@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login / Registro</title>
+
+</head>
+
+<body>
+
+    <h1>Logueo y inicio de sesion de Usuarios</h1>
+
+    <div class="box">
+        <h2>Registro</h2>
+        <input id="reg-usuario" type="text" placeholder="Usuario" />
+        <input id="reg-contrasena" type="password" placeholder="Contraseña" />
+        <button class="success" onclick="registrar()">Registrarse</button>
+        <p id="reg-msg"></p>
+    </div>
+
+    <div class="box">
+        <h2>Iniciar Sesión</h2>
+        <input id="login-usuario" type="text" placeholder="Usuario" />
+        <input id="login-contrasena" type="password" placeholder="Contraseña" />
+        <button onclick="iniciarSesion()">Entrar</button>
+        <p id="login-msg"></p>
+    </div>
+
+    <script>
+        function registrar() {
+
+            let user = document.getElementById("reg-usuario").value;
+            let pass = document.getElementById("reg-contrasena").value;
+            let msgElement = document.getElementById("reg-msg");
+
+            msgElement.style.color = "red";
+
+            if (!user || !pass) {
+                msgElement.innerText = "Completa todos los campos";
+                return;
+            }
+
+
+            const storageKey = "user_" + user;
+
+            if (localStorage.getItem(storageKey)) {
+                msgElement.innerText = "Este usuario ya existe";
+                return;
+            }
+
+
+            localStorage.setItem(storageKey, pass);
+
+
+            msgElement.style.color = "green";
+            msgElement.innerText = "Registrado correctamente";
+        }
+
+        function iniciarSesion() {
+
+            let user = document.getElementById("login-usuario").value;
+            let pass = document.getElementById("login-contrasena").value;
+            let msgElement = document.getElementById("login-msg");
+
+            msgElement.style.color = "red";
+
+            if (!user || !pass) {
+                msgElement.innerText = "Completa todos los campos";
+                return;
+            }
+
+            const storageKey = "user_" + user;
+
+            let guardada = localStorage.getItem(storageKey);
+
+
+            if (guardada && guardada === pass) {
+
+                localStorage.setItem("usuarioActivo", user);
+                msgElement.style.color = "green";
+                msgElement.innerText = "¡Bienvenido! Redirigiendo...";
+
+
+                setTimeout(() => {
+                    window.location.href = "juego.html";
+                }, 800);
+
+            } else {
+                msgElement.innerText = "Usuario o contraseña incorrectos";
+            }
+        }
+
+
+        if (localStorage.getItem("usuarioActivo")) {
+            window.location.href = "juego.html";
+        }
+
+    </script>
+
+
+    <style>
+        body {
+            background: #2c924b;
+            font-family: Arial;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+        }
+
+        .box {
+            background: white;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 350px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #0003;
+        }
+
+        .box h2 {
+            text-align: center;
+            color: #333;
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 95%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border: 1px solid #aaa;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #2196f3;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #1976d2;
+        }
+
+        .danger {
+            background: #f44336;
+        }
+
+        .danger:hover {
+            background: #d32f2f;
+        }
+
+        .success {
+            background: #4caf50;
+        }
+
+        .success:hover {
+            background: #388e3c;
+        }
+
+        p {
+            text-align: center;
+            color: red;
+            font-weight: bold;
+            min-height: 1.2em;
+        }
+    </style>
+</body>
+
+</html>

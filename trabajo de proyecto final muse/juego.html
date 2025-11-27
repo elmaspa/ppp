@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego</title>
+
+    <style>
+        body {
+            background: #eef2f3;
+            font-family: Arial;
+            padding: 20px;
+        }
+
+        h1,
+        h2 {
+            text-align: center;
+        }
+
+        .info-box {
+            background: rgb(208, 212, 6);
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 8px #0002;
+        }
+
+        canvas {
+            background: linear-gradient(#0d641a, #0b4f15);
+            border: 4px solid #000;
+            display: block;
+            margin: 20px auto;
+            border-radius: 6px;
+        }
+
+        button {
+            padding: 12px 20px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            border: none;
+            background: #2196f3;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .danger {
+            background: #d32f2f;
+        }
+
+        #resultado {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .centered {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Usuario: <span id="username"></span></h2>
+
+    <h1>Juego de Penales</h1>
+    <p class="centered">Elegí a dónde querés patear:</p>
+
+    <div class="centered">
+        <button onclick="tirar('izquierda')">Izquierda</button>
+        <button onclick="tirar('derecha')">Derecha</button>
+    </div>
+
+    <canvas id="cancha" width="360" height="180"></canvas>
+
+    <p id="resultado"></p>
+
+    <div class="centered">
+        <button class="danger" onclick="cerrarSesion()">Cerrar sesión</button>
+    </div>
+
+    <div class="info-box">
+        <h3>Información del juego:</h3>
+        <p>
+            Este juego simula penales con un arquero que se mueve aleatoriamente.
+            La pelota se anima con movimiento básico hacia el arco.
+            El jugador elige izquierda o derecha y ve si el arquero adivina.
+
+            este juego te reta a ver que tanta suerte o reflejo tienes contra el arquero. Abajo de esto aparece el
+            resultado de la API de frases de kanye west
+
+        </p>
+        <p id="dato"></p>
+    </div>
+
+    <script>
+        if (!localStorage.getItem("usuarioActivo")) {
+            window.location.href = "index.html";
+        }
+
+        document.getElementById("username").innerText =
+            localStorage.getItem("usuarioActivo");
+
+        let canvas = document.getElementById("cancha");
+        let ctx = canvas.getContext("2d");
+
+        let arqueroPos = "izquierda";
+
+        function dibujarArco() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "#0a5";
+            ctx.fillRect(0, 0, 360, 180);
+
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 4;
+            ctx.strokeRect(40, 20, 280, 140);
+
+            ctx.fillStyle = "#222";
+            if (arqueroPos === "izquierda") {
+                ctx.fillRect(90, 90, 25, 60);
+            } else {
+                ctx.fillRect(245, 90, 25, 60);
+            }
+        }
+
+        function moverArquero() {
+            arqueroPos = Math.random() < 0.5 ? "izquierda" : "derecha";
+        }
+
+        function animarPelota(dir, callback) {
+            let x = 180, y = 170;
+            let destinoX = dir === "izquierda" ? 110 : 250;
+            let destinoY = 80;
+
+            function frame() {
+                dibujarArco();
+
+                x += (destinoX - x) * 0.1;
+                y += (destinoY - y) * 0.1;
+
+                ctx.beginPath();
+                ctx.arc(x, y, 8, 0, Math.PI * 2);
+                ctx.fillStyle = "white";
+                ctx.fill();
+
+                if (Math.abs(x - destinoX) > 2 || Math.abs(y - destinoY) > 2) {
+                    requestAnimationFrame(frame);
+                } else callback();
+            }
+
+            frame();
+        }
+
+        function tirar(dir) {
+            moverArquero();
+            dibujarArco();
+            let texto = document.getElementById("resultado");
+            texto.innerHTML = "";
+
+            animarPelota(dir, () => {
+                if (dir === arqueroPos) {
+                    texto.style.color = "red";
+                    texto.innerHTML = "ATAJÓ EL ARQUERO";
+                } else {
+                    texto.style.color = "green";
+                    texto.innerHTML = "¡GOL!";
+                }
+            });
+        }
+
+        dibujarArco();
+
+        function cerrarSesion() {
+            localStorage.removeItem("usuarioActivo");
+            window.location.href = "index.html";
+        }
+
+        fetch("https://api.kanye.rest")
+            .then(res => res.json())
+            .then(data => {
+
+                const frase = data.quote;
+
+                document.getElementById("dato").textContent = `KANYE DICE: "${frase}"`;
+            });
+    </script>
+
+</body>
+
+</html>
